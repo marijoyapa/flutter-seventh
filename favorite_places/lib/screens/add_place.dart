@@ -19,13 +19,15 @@ class AddPlaceScreen extends ConsumerStatefulWidget {
 class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
   final _titleController = TextEditingController();
   File? imageFile;
+  PlaceLocation? pickedLocation;
 
   void addPlace() {
-    if (_titleController.text.isEmpty || imageFile == null) {
+    if (_titleController.text.isEmpty || imageFile == null || pickedLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All fields must be populated')));
       return;
     }
     ref.read(favoriteMealsProvider.notifier).addFavoritePlace(
-        FavovitePlace(name: _titleController.text, path: imageFile!));
+        FavovitePlace(name: _titleController.text, image: imageFile!, location: pickedLocation!));
     Navigator.of(context).pop();
   }
 
@@ -56,7 +58,9 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
               onPickImage: (file) => imageFile = file,
             ),
             const SizedBox(height: 16),
-            LocationInput(),
+            LocationInput(
+              pickedLocation: (location) => pickedLocation = location,
+            ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
                 onPressed: addPlace,
