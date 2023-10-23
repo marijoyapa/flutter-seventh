@@ -6,13 +6,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:favorite_places/providers/favorite_place.dart';
 
-class FavoriteListScreen extends ConsumerWidget {
+class FavoriteListScreen extends ConsumerStatefulWidget {
   const FavoriteListScreen({super.key});
+
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() {
+    return _FavoriteListScreenState();
+  }
+}
+
+class _FavoriteListScreenState extends ConsumerState<FavoriteListScreen> {
+  late Future<void> _placesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _placesFuture = ref.read(favoriteMealsProvider.notifier).loadPlaces();
+  }
 
   void addPlace(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => AddPlaceScreen(),
+        builder: (context) => const AddPlaceScreen(),
       ),
     );
   }
@@ -26,7 +41,7 @@ class FavoriteListScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final favoritePlaces = ref.watch(favoriteMealsProvider);
 
     return Scaffold(
@@ -42,8 +57,19 @@ class FavoriteListScreen extends ConsumerWidget {
         ],
       ),
       body: Padding(
-          padding: const EdgeInsets.all(8),
-          child: PlaceLists(places: favoritePlaces)),
+        padding: const EdgeInsets.all(8),
+        child: FutureBuilder(
+          future: _placesFuture,
+          builder: (context, snapshot) =>
+              snapshot.connectionState == ConnectionState.waiting
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : PlaceLists(
+                      places: favoritePlaces,
+                    ),
+        ),
+      ),
     );
   }
 }

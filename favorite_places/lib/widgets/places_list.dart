@@ -30,13 +30,22 @@ class PlaceLists extends ConsumerWidget {
       content = ListView.builder(
         itemCount: places.length,
         itemBuilder: (context, index) => ListTile(
-          leading: CircleAvatar(backgroundImage: FileImage(places[index].path), radius: 26,),
+          leading: CircleAvatar(
+            backgroundImage: FileImage(places[index].image),
+            radius: 26,
+          ),
           onTap: () {
             navigateSpecificPlace(context, places[index]);
           },
           title: Text(
             places[index].name,
             style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
+          ),
+          subtitle: Text(
+            places[index].location.address,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: Theme.of(context).colorScheme.onBackground,
                 ),
           ),
